@@ -29,7 +29,10 @@ namespace CodeChallenge.Repositories
 
         public Employee GetById(string id)
         {
-            return _employeeContext.Employees.SingleOrDefault(e => e.EmployeeId == id);
+            return _employeeContext.Employees.Where(e => e.EmployeeId == id)
+                .Include(e => e.DirectReports) //reports of reports are null which isn't ideal but low impact
+                .ToList() //TODO: could be nice to see if we could get report report IDs maybe?
+                .FirstOrDefault();
         }
 
         public Task SaveAsync()
