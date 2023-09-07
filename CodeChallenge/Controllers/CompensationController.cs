@@ -23,20 +23,38 @@ namespace CodeChallenge.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpsertCompensation([FromBody] Compensation compensation)
+        public IActionResult UpsertCompensation(String id, [FromBody] Compensation compensation)
         {
             _logger.LogDebug($"Received compensation create/update request for '{compensation.EmployeeId}'");
-
-            Compensation response = _compensationService.Upsert(compensation);
-
-            // adding a compensation for nonexistent employee will fail and
-            // return null, here responding with Not Found
-            if (response == null)
+            // If the body has no id, add it from the url
+            if (compensation.EmployeeId == null)
             {
-                return NotFound();
+                compensation.EmployeeId = id;
+            }
+            // Don't proceed if the body and url don't match
+            if (id != compensation.EmployeeId)
+            {
+                return BadRequest();
             }
 
-            return Ok(response);
+            Compensation response;
+            try
+            {
+                response = _compensationService.Upsert(compensation);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // adding a compensation for nonexistent employee will fail and
+                // throw an exception, here responding with Not Found
+                return NotFound();
+            }
+            // If we updated an existing record then give a No Content success code
+            if (response == null)
+            {
+                return NoContent();
+            }
+
+            return CreatedAtRoute("getCompensationById", new { id = compensation.EmployeeId }, compensation);
         }
 
         [HttpGet("{id}", Name = "getCompensationById")]

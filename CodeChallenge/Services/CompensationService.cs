@@ -38,31 +38,30 @@ namespace CodeChallenge.Services
             return null;
         }
 
-        // TODO: Remember I brought in employeeRepository so I can make sure that you don't post a comp for a nonexistent employee
         public Compensation Upsert(Compensation compensation)
         {
             Compensation compensationToUpdate = GetById(compensation.EmployeeId);
             //If the Compensation does not exist for the employee, add a new one
             if (compensationToUpdate == null)
             {
+                // Don't allow a new Compensation for an Employee that doesn't exist
+                if (_employeeRepository.GetById(compensation.EmployeeId) == null)
+                {
+                    throw new InvalidOperationException();
+                }
                 _compensationRepository.Add(compensation);
+                _compensationRepository.SaveAsync().Wait();
                 return compensation;
             }
             else
             {
-                // Don't allow a new Compensation for an Employee that doesn't exist
-                if (_employeeRepository.GetById(compensation.EmployeeId) == null)
-                {
-                    return null;
-                }
-
                 // Delete the existing Compensation
                 _compensationRepository.Remove(compensationToUpdate);
                 _compensationRepository.SaveAsync().Wait();
                 // Once old Compensation is removed, Add in the new Compensation
                 _compensationRepository.Add(compensation);
                 _compensationRepository.SaveAsync().Wait();
-                return compensation;
+                return null;
             }
         }
     }

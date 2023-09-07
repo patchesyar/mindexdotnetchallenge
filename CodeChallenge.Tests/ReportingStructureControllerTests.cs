@@ -35,7 +35,7 @@ namespace CodeCodeChallenge.Tests.Integration
         }
 
         [TestMethod]
-        public void NoReportsEmployee_Returns_Zero()
+        public void NoReportsEmployee_Returns_Ok()
         {
 
             // Arrange
@@ -57,7 +57,7 @@ namespace CodeCodeChallenge.Tests.Integration
         }
 
         [TestMethod]
-        public void HasReportsEmployee_Returns_Count()
+        public void HasReportsEmployee_Returns_Ok()
         {
             // Arrange
             var employeeId = "16a596ae-edd3-4847-99fe-c4518e82c86f";
