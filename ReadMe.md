@@ -78,10 +78,41 @@ This new type should have a new REST endpoint created for it. This new endpoint 
 the fully filled out ReportingStructure for the specified employeeId. The values should be computed on the fly and will 
 not be persisted.
 
+## Task 1 Implementation
+This new endpoint is available as: 
+```
+* READ
+    * HTTP Method: GET
+    * URL: localhost:8080/api/reportingstructure/{id}
+    * RESPONSE: ReportingStructure
+```
+
 ### Task 2
 Create a new type, Compensation. A Compensation has the following fields: employee, salary, and effectiveDate. Create 
 two new Compensation REST endpoints. One to create and one to read by employeeId. These should persist and query the 
 Compensation from the persistence layer.
+
+## Task 2 Implementation
+These two new endpoints are available as: 
+```
+* READ
+    * HTTP Method: GET
+    * URL: localhost:8080/api/compensation/{id}
+    * RESPONSE: ReportingStructure
+	
+* UPDATE
+	* HTTP Method: PUT
+	* URL: localhost:8080/api/compensation/{id}
+	* PAYLOAD: Compensation
+	* RESPONSE: Compensation (Create)/ No Content (Update)
+```
+Note: when the Update method is used to create a new compensation record, a 201 Created response is returned 
+along with a compensation payload. When an existing Compensation is updated, 204 No Content is returned instead.
+This could be changed to a 200 OK response, but both are compliant with HTTP Response standards.
+
+Also while I addressed the edge cases to ensure that a compensation could not be created for an employee that doesn't
+exist, there are a number of other cases I didn't get to in order to avoid scope creep, such as preventing negative
+salaries.
 
 ## Delivery
 Please upload your results to a publicly accessible Git repo. Free ones are provided by Github and Bitbucket.
