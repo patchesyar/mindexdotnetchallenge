@@ -23,6 +23,10 @@ namespace CodeChallenge.Repositories
         public Employee Add(Employee employee)
         {
             employee.EmployeeId = Guid.NewGuid().ToString();
+            if(employee.DirectReports != null)
+            {
+                employee.DirectReports = ListReports(employee);
+            }
             _employeeContext.Employees.Add(employee);
             return employee;
         }
@@ -30,8 +34,8 @@ namespace CodeChallenge.Repositories
         public Employee GetById(string id)
         {
             return _employeeContext.Employees.Where(e => e.EmployeeId == id)
-                .Include(e => e.DirectReports) //reports of reports are null which isn't ideal but low impact
-                .ToList() //TODO: could be nice to see if we could get report report IDs maybe?
+                .Include(e => e.DirectReports) 
+                .ToList() 
                 .FirstOrDefault();
         }
 
@@ -43,6 +47,22 @@ namespace CodeChallenge.Repositories
         public Employee Remove(Employee employee)
         {
             return _employeeContext.Remove(employee).Entity;
+        }
+
+        /// <summary>
+        /// Converts a list of employeeIDs to complete Employee objects
+        /// used when adding new employees via API
+        /// </summary>
+        /// <param name="employee">The Employee being added with invalid reports list</param>
+        /// <returns>list of employee objects with info filled out</returns>
+        private List<Employee> ListReports(Employee employee)
+        {
+            List<Employee> result = new List<Employee>();
+            foreach(Employee e in  employee.DirectReports)
+            {
+                result.Add(GetById(e.EmployeeId));
+            }
+            return result;
         }
     }
 }

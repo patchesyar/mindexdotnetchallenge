@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -131,6 +132,44 @@ namespace CodeCodeChallenge.Tests.Integration
 
             // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void CreateEmployeeWithReports_Returns_Created()
+        {
+            // Arrange
+            var reports = new List<Employee>();
+            // Per the API spec, we only pass the ID but it gets stored as
+            // a complete Employee object, this simulates that
+            var lennon = new Employee()
+            {
+                EmployeeId = "03aa1462-ffa9-4978-901b-7c001562cf6f"
+            };
+            var employee = new Employee()
+            {
+                Department = "Human Resources",
+                FirstName = "Brian",
+                LastName = "Epstein",
+                Position = "Band Manager",
+                DirectReports = reports
+            };
+
+            var requestContent = new JsonSerialization().ToJson(employee);
+
+            // Execute
+            var postRequestTask = _httpClient.PostAsync("api/employee",
+               new StringContent(requestContent, Encoding.UTF8, "application/json"));
+            var response = postRequestTask.Result;
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+
+            var newEmployee = response.DeserializeContent<Employee>();
+            Assert.IsNotNull(newEmployee.EmployeeId);
+            Assert.AreEqual(employee.FirstName, newEmployee.FirstName);
+            Assert.AreEqual(employee.LastName, newEmployee.LastName);
+            Assert.AreEqual(employee.Department, newEmployee.Department);
+            Assert.AreEqual(employee.Position, newEmployee.Position);
         }
     }
 }
